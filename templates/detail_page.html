@@ -5,6 +5,7 @@
     <meta http-equiv="X-UA-Compatible" content="IE=edge">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
 
+    <link href="https://fonts.googleapis.com/css2?family=Sunflower:wght@300&display=swap" rel="stylesheet">
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.0.2/dist/css/bootstrap.min.css" rel="stylesheet"
           integrity="sha384-EVSTQN3/azprG1Anm3QDgpJLIm9Nao0Yz1ztcQTwFspd3yD65VohhpuuCOmLASjC" crossorigin="anonymous">
     <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.5.1/jquery.min.js"></script>
@@ -14,10 +15,9 @@
     <script async
             src="https://maps.googleapis.com/maps/api/js?key=AIzaSyCQnVTDXq3aqasDaI0vzZkSaV18hi87nvE&callback=initMap">
     </script>
-
+    <script type="text/javascript" src="../static/js/map.js"></script>
     <title>화장실 정보</title>
 
-    <link href="https://fonts.googleapis.com/css2?family=Sunflower:wght@300&display=swap" rel="stylesheet">
     <style>
         * {
             font-family: 'Sunflower', sans-serif;
@@ -76,20 +76,26 @@
             width: 50%;
             /* The width is the width of the web page */
         }
-
-
     </style>
+
+    {#성영님 js import#}
     <script>
         $(document).ready(function () {
             show_comment();
             show_restroomInfo();
-            show_img();
         });
 
         function save_comment() {
+            {#현재 이 html이 랜딩되고있는 url 추출하기#}
+            var url_string = window.location.href;
+            var url = new URL(url_string);
+            {#url에서 id 추출하기#}
+            {var param = url.searchParams.get("id");
+
             let name = $('#name').val()
             let comment = $('#comment').val()
             let star = $('#star').val()
+            let rest_id = {{ id }};
 
             $.ajax({
                 type: "POST",
@@ -97,20 +103,22 @@
                 data: {
                     'name_give': name,
                     'comment_give': comment,
-                    'star_give': star
+                    'star_give': star,
+                    'rest_id':rest_id
                 },
                 success: function (response) {
                     alert(response["msg"])
                     window.location.reload()
                 }
             });
-        }
+        }}
 
         function show_comment() {
             // $('#comment-list').empty()
+            let rest_id = {{ id }}
             $.ajax({
                 type: "GET",
-                url: "/review",
+                url: `/review_api?id=${rest_id}`,
                 data: {},
                 success: function (response) {
                     let rows = response['comments']
@@ -123,24 +131,24 @@
                         let star_image = '⭐'.repeat(star)
 
                         let temp_html = `<div class="card">
-                                            <div class="card-body">
-                                                <blockquote class="blockquote mb-0">
-                                                    <p>${star_image}</p>
-                                                    <p>${comment}</p>
-                                                    <footer class="blockquote-footer">${name}</footer>
-                                                    <div style="display: flex;">
-                                                        <div id="update_review" style="margin-right: 10px;">
-                                                            <button type="button" class="btn btn-outline-info">수정</button>
-                                                        </div>
-                                                        <div id="btn-delete" ">
-                                                            <button onclick="delete_review(${num})" type="button" class="btn btn-outline-danger">삭제</button>
-                                                        </div>
+                                                    <div class="card-body">
+                                                        <blockquote class="blockquote mb-0">
+                                                            <p>${star_image}</p>
+                                                            <p>${comment}</p>
+                                                            <footer class="blockquote-footer">${name}</footer>
+                                                            <div style="display: flex;">
+                                                                <div id="update_review" style="margin-right: 10px;">
+                                                                    <button type="button" class="btn btn-outline-info">수정</button>
+                                                                </div>
+                                                                <div id="btn-delete" ">
+                                                                    <button onclick="delete_review(${num})" type="button" class="btn btn-outline-danger">삭제</button>
+                                                                </div>
 
+                                                            </div>
+
+                                                        </blockquote>
                                                     </div>
-
-                                                </blockquote>
-                                            </div>
-                                        </div>`
+                                                </div>`
                         $('#comment-list').append(temp_html)
                     }
                 }
@@ -148,34 +156,40 @@
         }
 
         function show_restroomInfo() {
-            var url_string = window.location.href;
-            var url = new URL(url_string);
-            var param = url.searchParams.get("id");
-
-            $('#restroom-box')
+            // // {#현재 이 html이 랜딩되고있는 url 추출하기#}
+            // var url_string = window.location.href;
+            // var url = new URL(url_string);
+            //
+            // // {#url에서 id 추출하기#}
+            // var param = url.searchParams.get("id");
+            // $('#restroom-box')
+            let rest_id = {{ id }};
+            console.log(rest_id)
             $.ajax({
                 type: "GET",
-                url: "/gu_names/gu_names=" + param,
+                url: `/detail_api?id = ${rest_id}`,
                 data: {},
                 success: function (response) {
                     let rows = response['details']
+                    console.log(rows)
                     for (let i = 0; i < rows.length; i++) {
                         let name = rows[i]['name']
                         let address = rows[i]['address']
 
 
                         let temp_html = `<div class="row g-0">
-                                            <div class="col-md-4">
-                                                <img src="${url}" class="img-fluid rounded-start" alt="...">
-                                            </div>
-                                            <div class="col-md-8">
-                                                <div class="card-body">
-                                                    <h5 class="card-title">${name}</h5>
-                                                    <p class="card-text">${address}</p>
-                                                    <p class="card-text"><small class="text-muted">지도?</small></p>
-                                                </div>
-                                            </div>
-                                        </div>`
+                                                    <div class="col-md-4">
+                                                        <img src="${url}" class="img-fluid rounded-start" alt="...">
+                                                    </div>
+                                                    <div class="col-md-8">
+                                                        <div class="card-body">
+                                                            <h5 class="card-title">${name}</h5>
+                                                            <p class="card-text">${address}</p>
+                                                            <p class="card-text"><s
+                                                            ll class="text-muted">지도?</small></p>
+                                                        </div>
+                                                    </div>
+                                                </div>`
                         $('#restroom-box').append(temp_html)
                     }
                 }
@@ -193,11 +207,11 @@
             });
             window.location.reload()
         }
+
     </script>
-
 </head>
-<body>
 
+<body>
 <div id="restroom_box" class="card mb-3" style="max-width: 1800px; width: 95%;">
     <div class="row g-0">
         <div class="col-md-4">
@@ -211,9 +225,8 @@
                 <p class="card-text">
                 <h3>위치를 보여주는 지도가 들어갑니다.</h3>
                 <div id="map"></div>
-                <script src="https://maps.googleapis.com/maps/api/js?key=YOUR_API_KEY&callback=initMap&libraries=&v=weekly"
+                <script src="https://maps.googleapis.com/maps/api/js?key=KEYKEYKEYKEYKEYKEY&callback=initMap&libraries=&v=weekly"
                         async>
-
                 </script>
                 </p>
             </div>
@@ -246,83 +259,6 @@
     <button onclick="save_comment()" type="button" class="btn btn-dark">리뷰 남기기</button>
 </div>
 <div class="mycards" id="comment-list">
-    <div class="card">
-        <div class="card-body">
-            <blockquote class="blockquote mb-0">
-                <p>⭐⭐⭐⭐⭐</p>
-                <p>리뷰가 여기 달립니다.</p>
-                <footer class="blockquote-footer">닉네임</footer>
-                <div style="display: flex;">
-                    <div id="update_review" style="margin-right: 10px;">
-                        <button type="button" class="btn btn-outline-info">수정</button>
-                    </div>
-                    <div id="btn-delete" onclick="delete_review()">
-                        <button type="button" class="btn btn-outline-danger">삭제</button>
-                    </div>
-
-                </div>
-
-            </blockquote>
-        </div>
-    </div>
-    <div class="card">
-        <div class="card-body">
-            <blockquote class="blockquote mb-0">
-                <p>⭐⭐⭐⭐⭐</p>
-                <p>리뷰가 여기 달립니다.</p>
-                <footer class="blockquote-footer">닉네임</footer>
-                <div style="display: flex;">
-                    <div id="update_review" style="margin-right: 10px;">
-                        <button type="button" class="btn btn-outline-info">수정</button>
-                    </div>
-                    <div id="delete_review">
-                        <button type="button" class="btn btn-outline-danger">삭제</button>
-                    </div>
-
-                </div>
-
-            </blockquote>
-        </div>
-    </div>
-    <div class="card">
-        <div class="card-body">
-            <blockquote class="blockquote mb-0">
-                <p>⭐⭐⭐⭐⭐</p>
-                <p>리뷰가 여기 달립니다.</p>
-                <footer class="blockquote-footer">닉네임</footer>
-                <div style="display: flex;">
-                    <div id="update_review" style="margin-right: 10px;">
-                        <button type="button" class="btn btn-outline-info">수정</button>
-                    </div>
-                    <div id="delete_review">
-                        <button type="button" class="btn btn-outline-danger">삭제</button>
-                    </div>
-
-                </div>
-
-            </blockquote>
-        </div>
-    </div>
-    <div class="card">
-        <div class="card-body">
-            <blockquote class="blockquote mb-0">
-                <p>⭐⭐⭐⭐⭐</p>
-                <p>리뷰가 여기 달립니다.</p>
-                <footer class="blockquote-footer">닉네임</footer>
-                <div style="display: flex;">
-                    <div id="update_review" style="margin-right: 10px;">
-                        <button type="button" class="btn btn-outline-info">수정</button>
-                    </div>
-                    <div id="delete_review">
-                        <button type="button" class="btn btn-outline-danger">삭제</button>
-                    </div>
-
-                </div>
-
-            </blockquote>
-        </div>
-    </div>
-
 
 </div>
 </body>
