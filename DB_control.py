@@ -4,25 +4,18 @@ import hashlib
 import certifi
 import pymongo
 ca = certifi.where()
-client = pymongo.MongoClient('', tlsCAFile=ca)
+client = pymongo.MongoClient('mongodb+srv://test:sparta@cluster0.6cz6m.mongodb.net/Cluster0?retryWrites=true&w=majority', tlsCAFile=ca)
 db = client.seoul_restroom
 
-# 회원가입 DB
-sign_up_info = {
-    'user_id': "test id 1",
-    'user_pw': "test pw 1"
-}
-# db.signup.insert_one(sign_up_info)
 
-# 리뷰 DB
-review_info = {
-        'name': "test name 1",
-        'comment': "test comment 1",
-        'star': "test star 1",
-        'num': "test num 1"
-    }
-db.review.insert_one(review_info)
-
+base_ls_s = list(db.base_info.find({}, {"_id":False}))
+base_ls = base_ls_s[4000:]
+count = 4000
+for base in base_ls:
+    base_name = base["name"]
+    count += 1
+    print(count)
+    db.district.update_one({'name':base_name},{'$set':{"restroom_id":count}})
 
 # name_X_Y_ls = list(db.district.find({},{'_id':False}))
 # name_X_Y = name_X_Y_ls[4000:] # 4000:
@@ -55,18 +48,3 @@ db.review.insert_one(review_info)
 #         'address' : converted_address
 #         }
 #     db.base_info.insert_one(base_info)
-
-
-
-# # 구이름 DB
-# district_info = {
-#     'gu_names' : "test gunames 1"
-# }
-# db.district.insert_one(district_info)
-#
-# # 리뷰 DB
-# review_info = {
-#     'comment': "test comment 1",
-#     'user_id': "test id 1" # 댓글러 구분용
-# }
-# db.review.insert_one(review_info)

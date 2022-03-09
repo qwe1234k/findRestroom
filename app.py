@@ -12,13 +12,13 @@ import time
 app = Flask(__name__)
 app.config["TEMPLATES_AUTO_RELOAD"] = True
 app.config['UPLOAD_FOLDER'] = "./static/profile_pics"
-SECRET_KEY = ''
+SECRET_KEY = 'SPARTA'
 
 # mongo db setting
 import certifi
 import pymongo
 ca = certifi.where()
-client = pymongo.MongoClient('', tlsCAFile=ca)
+client = pymongo.MongoClient('mongodb+srv://test:sparta@cluster0.6cz6m.mongodb.net/Cluster0?retryWrites=true&w=majority', tlsCAFile=ca)
 db = client.seoul_restroom
 
 # 페이지별 기능 구현
@@ -84,7 +84,7 @@ def check_dup():
 def rest_list(gu_name=None):
     return render_template('restroom_list.html')
 
-@app.route('/api') #태성
+@app.route('/api/') #태성
 def rest_room_ls():
    # name, address, restroom_id <== restroom_list
    gu_name = request.args.get('guname')
@@ -95,17 +95,15 @@ def rest_room_ls():
 # detail_mainpage
 @app.route('/gu_names/<gu_name>/<rest_room_id>')
 def detail_home(gu_name, rest_room_id):
-   return render_template('detail_page.html'.format(gu_name), id=rest_room_id)
+    map_id_info = db.district.find_one({"restroom_id" : int(rest_room_id)}, {'_id': False})
+    return render_template('detail_page.html'.format(gu_name), id=rest_room_id, map_id_info=map_id_info)
 
 # detail_info_api
 @app.route("/detail_api", methods=["GET"])
 def detail_get():
-    #star, name, address <= res_Detail
-    try:
-        res_Detail = db.base_info.find_one({"restroom_id" : int(request.args.get('id'))},{'_id':False})
-        return jsonify({'details' : res_Detail})
-    except:
-        return jsonify("오류가 발생하였습니다.")
+    #int 안에 변수들이 NoneType이 들어옴
+    res_Detail = db.base_info.find_one({"restroom_id" : int(request.args.get('id'))},{'_id':False})
+    return jsonify({'details' : res_Detail})
 
 # 리뷰를 post할때 화장실 id와 함께 db 저장
 ## review_append
@@ -140,7 +138,6 @@ def bucket_undo():
     num_receive = request.form['num_give']
     db.review.delete_one({'num':int(num_receive)})
     return jsonify({'msg': '삭제완료!'})
-
 
 if __name__ == '__main__':
    app.run('0.0.0.0',port=5000, debug=True)

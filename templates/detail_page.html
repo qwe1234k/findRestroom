@@ -12,10 +12,7 @@
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.0.2/dist/js/bootstrap.bundle.min.js"
             integrity="sha384-MrcW6ZMFYlzcLA8Nl+NtUVF0sA7MsXsP1UyJoMp4YLEuNSfAP+JcXn/tWtIaxVXM"
             crossorigin="anonymous"></script>
-    <script async
-            src="https://maps.googleapis.com/maps/api/js?key=AIzaSyCQnVTDXq3aqasDaI0vzZkSaV18hi87nvE&callback=initMap">
-    </script>
-    <script type="text/javascript" src="../static/js/map.js"></script>
+
     <title>화장실 정보</title>
 
     <style>
@@ -23,7 +20,6 @@
             font-family: 'Sunflower', sans-serif;
 
         }
-
 
         .mypost {
             width: 95%;
@@ -71,10 +67,21 @@
         }
 
         #map {
-            height: 190px;
+            height: 390px;
             /* The height is 400 pixels */
             width: 50%;
             /* The width is the width of the web page */
+            margin: auto;
+            padding: 10px 10px;
+        }
+
+        .card {
+            margin: 20px auto;
+            border-color: #115b8d;
+        }
+
+        .col-md-4 {
+            margin: 20px auto;
         }
     </style>
 
@@ -156,45 +163,31 @@
         }
 
         function show_restroomInfo() {
-            // // {#현재 이 html이 랜딩되고있는 url 추출하기#}
-            // var url_string = window.location.href;
-            // var url = new URL(url_string);
-            //
-            // // {#url에서 id 추출하기#}
-            // var param = url.searchParams.get("id");
-            // $('#restroom-box')
             let rest_id = {{ id }};
-            console.log(rest_id)
+
             $.ajax({
                 type: "GET",
-                url: `/detail_api?id = ${rest_id}`,
+                url: `/detail_api?id=${rest_id}`,
                 data: {},
                 success: function (response) {
                     let rows = response['details']
                     console.log(rows)
-                    for (let i = 0; i < rows.length; i++) {
-                        let name = rows[i]['name']
-                        let address = rows[i]['address']
-
-
-                        let temp_html = `<div class="row g-0">
-                                                    <div class="col-md-4">
-                                                        <img src="${url}" class="img-fluid rounded-start" alt="...">
+                    let name = rows['name']
+                    let address = rows['address']
+                    console.log(name, address)
+                    let temp_html = `<div class="row g-0">
+                                                <div class="col-md-8">
+                                                    <div class="card-body">
+                                                        <h5 class="card-title">${name}</h5>
+                                                        <p class="card-text">${address}</p>
                                                     </div>
-                                                    <div class="col-md-8">
-                                                        <div class="card-body">
-                                                            <h5 class="card-title">${name}</h5>
-                                                            <p class="card-text">${address}</p>
-                                                            <p class="card-text"><s
-                                                            ll class="text-muted">지도?</small></p>
-                                                        </div>
-                                                    </div>
-                                                </div>`
-                        $('#restroom-box').append(temp_html)
+                                                </div>
+                                            </div>`
+                    $('#detail_info_append').append(temp_html)
                     }
-                }
-            });
-        }
+                })
+            }
+
 
         function delete_review(num) {
             $.ajax({
@@ -208,33 +201,49 @@
             window.location.reload()
         }
 
+        function initMap() {
+            let map_id_info = {{ map_id_info|tojson }};
+            let X = map_id_info["X_WGS84"];
+            let Y = map_id_info["Y_WGS84"];
+
+            // The location of Uluru
+            const uluru = {lat: Y, lng: X};
+            // The map, centered at Uluru
+            const map = new google.maps.Map(document.getElementById("map"), {
+                zoom: 18,
+                center: uluru,
+            });
+            // The marker, positioned at Uluru
+            const marker = new google.maps.Marker({
+                position: uluru,
+                map: map,
+            });
+
+
+        }
+
     </script>
 </head>
 
 <body>
-<div id="restroom_box" class="card mb-3" style="max-width: 1800px; width: 95%;">
+{#상단#}
+<div id="restroom-box" class="card mb-3" style="max-width: 1800px; width: 95%;">
+
+
     <div class="row g-0">
         <div class="col-md-4">
-            <img src="https://cdn.pharmnews.com/news/photo/202008/101156_52033_4133.jpg" class="img-fluid rounded-start"
-                 alt="...">
+            {#지도 여기있어요#}
+            <div id="map"></div>
+            <script src="https://maps.googleapis.com/maps/api/js?key=AIzaSyCQnVTDXq3aqasDaI0vzZkSaV18hi87nvE&callback=initMap&libraries=&v=weekly" async></script>
+            {#지도 여기있어요#}
         </div>
-        <div class="col-md-8">
-            <div class="card-body">
-                <h1 class="card-title">화장실 이름</h1>
-                <p class="card-text">주소가 들어 갑니다</p>
-                <p class="card-text">
-                <h3>위치를 보여주는 지도가 들어갑니다.</h3>
-                <div id="map"></div>
-                <script src="https://maps.googleapis.com/maps/api/js?key=KEYKEYKEYKEYKEYKEY&callback=initMap&libraries=&v=weekly"
-                        async>
-                </script>
-                </p>
-            </div>
+
+        <div class="col-md-8" id="detail_info_append">
         </div>
     </div>
 </div>
 
-
+{#리뷰 작성란#}
 <div class="mypost">
     <div class="form-floating mb-3">
         <input type="text" class="form-control" id="name" placeholder="url" style="background-color: mintcream;">
@@ -258,6 +267,9 @@
     </div>
     <button onclick="save_comment()" type="button" class="btn btn-dark">리뷰 남기기</button>
 </div>
+
+
+{#리뷰리스트 보여주기#}
 <div class="mycards" id="comment-list">
 
 </div>

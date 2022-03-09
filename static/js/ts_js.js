@@ -1,4 +1,3 @@
-
 $(document).ready(function () {
             call_restroom_list();
         });
@@ -7,7 +6,6 @@ $(document).ready(function () {
             // {#현재 이 html이 랜딩되고있는 url 추출하기#}
             var url_string = window.location.href;
             var url = new URL(url_string);
-
             // {#url에서 구이름 추출하기#}
             var guname = url.href.replace("http://14.42.75.92:5000/gu_names/", "")
 
@@ -17,7 +15,6 @@ $(document).ready(function () {
                 dataType: 'json',
                 data: {},
                 success: function (response) {
-                    console.log(response)
                     let rows = response["restroom_list"]
                     for (i = 0; i < rows.length; i++) {
                         let name = rows[i]["name"]
@@ -43,8 +40,6 @@ $(document).ready(function () {
                                             </a>
                                         </list>`
 
-                        console.log(restroom_id,current_url,next_url)
                         $('#restroom_list').append(temp_html)
-
                     }
                 }})}
