@@ -21,7 +21,7 @@
     - bulma
     - JQuery
     - AJAX
-  * deploy
+  * Deploy
     - AWS EC2  
     
 ## 3. 핵심기능
