@@ -13,6 +13,8 @@
             integrity="sha384-MrcW6ZMFYlzcLA8Nl+NtUVF0sA7MsXsP1UyJoMp4YLEuNSfAP+JcXn/tWtIaxVXM"
             crossorigin="anonymous"></script>
 
+    <link rel="stylesheet" href="/static/css/sungyoung.css">
+
     <title>화장실 정보</title>
 
     <style>
@@ -20,72 +22,8 @@
             font-family: 'Sunflower', sans-serif;
 
         }
-
-        .mypost {
-            width: 95%;
-            max-width: 700px;
-            height: 370px;
-            margin: 20px auto 20px auto;
-
-            box-shadow: 0px 0px 3px 0px black;
-            padding: 20px;
-            background-color: mintcream;
-        }
-
-        .mypost > button {
-            margin-top: 15px;
-            width: 660px;
-        }
-
-        .mycards {
-            width: 95%;
-            max-width: 500px;
-            margin: auto;
-            background-color: mintcream;
-        }
-
-        .mycards > .card {
-            margin-top: 10px;
-            margin-bottom: 10px;
-            background-color: mintcream;
-            width: 500px;
-
-        }
-
-        body {
-            height: 100vh;
-            background-color: mintcream;
-            background-size: cover;
-        }
-
-        #restroom_box {
-            margin: 40px auto 40px auto;
-            overflow: hidden;
-            text-align: center;
-            font-size: xx-large;
-
-        }
-
-        #map {
-            height: 390px;
-            /* The height is 400 pixels */
-            width: 50%;
-            /* The width is the width of the web page */
-            margin: auto;
-            padding: 10px 10px;
-        }
-
-        .card {
-            margin: 20px auto;
-            border-color: #115b8d;
-        }
-
-        .col-md-4 {
-            margin: 20px auto;
-        }
     </style>
 
-    {#성영님 js import#}
     <script>
         $(document).ready(function () {
             show_comment();
@@ -97,7 +35,7 @@
             var url_string = window.location.href;
             var url = new URL(url_string);
             {#url에서 id 추출하기#}
-            {var param = url.searchParams.get("id");
+            var param = url.searchParams.get("id");
 
             let name = $('#name').val()
             let comment = $('#comment').val()
@@ -118,7 +56,7 @@
                     window.location.reload()
                 }
             });
-        }}
+        }
 
         function show_comment() {
             // $('#comment-list').empty()
@@ -171,18 +109,34 @@
                 data: {},
                 success: function (response) {
                     let rows = response['details']
-                    console.log(rows)
                     let name = rows['name']
                     let address = rows['address']
-                    console.log(name, address)
-                    let temp_html = `<div class="row g-0">
+
+                    let substring = "화장실"
+
+                    let temp_html=``
+
+                    if (name.includes(substring)) {
+                        temp_html = `<div class="row g-0">
                                                 <div class="col-md-8">
                                                     <div class="card-body">
-                                                        <h5 class="card-title">${name}</h5>
-                                                        <p class="card-text">${address}</p>
+                                                        <p class="card-title">${name}</p>
+                                                        <p class="card-text">위치: ${address}</p>
                                                     </div>
                                                 </div>
                                             </div>`
+                    }
+
+                    else {
+                        temp_html = `<div class="row g-0">
+                                                <div class="col-md-8">
+                                                    <div class="card-body">
+                                                        <p class="card-title">${name} 화장실</p>
+                                                        <p class="card-text">위치: ${address}</p>
+                                                    </div>
+                                                </div>
+                                            </div>`
+                    }
                     $('#detail_info_append').append(temp_html)
                     }
                 })
@@ -217,26 +171,20 @@
                 position: uluru,
                 map: map,
             });
-
-
         }
-
     </script>
 </head>
 
 <body>
 {#상단#}
 <div id="restroom-box" class="card mb-3" style="max-width: 1800px; width: 95%;">
-
-
     <div class="row g-0">
         <div class="col-md-4">
             {#지도 여기있어요#}
             <div id="map"></div>
-            <script src="https://maps.googleapis.com/maps/api/js?key=KEY=initMap&libraries=&v=weekly" async></script>
+            <script src="https://maps.googleapis.com/maps/api/js?key=INSERT YOUR KEY&callback=initMap&libraries=&v=weekly" async></script>
             {#지도 여기있어요#}
         </div>
-
         <div class="col-md-8" id="detail_info_append">
         </div>
     </div>

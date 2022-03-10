@@ -9,8 +9,8 @@ db = client.seoul_restroom
 
 
 base_ls_s = list(db.base_info.find({}, {"_id":False}))
-base_ls = base_ls_s[4000:]
-count = 4000
+base_ls = base_ls_s[0:1000] #1000:2000, 2000:3000, 3000:4000, 4000:
+count = 0 #1000, 2000, 3000, 4000,
 for base in base_ls:
     base_name = base["name"]
     count += 1
